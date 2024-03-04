@@ -158,10 +158,10 @@ namespace FingerprintAspNetCore.Areas.Identity.Pages.Account
                     return Page();
                 }
                 
-                // Make sure the visitor ID does not already exist
+                // Make sure the visitor ID does not exist more than 5 times in the last week
                 var startDate = DateTime.UtcNow.AddDays(-7);
                 if (_applicationDbContext.Users.Count(x => x.Fingerprint == Input.VisitorId &&
-                                                           x.RegistrationDate >= startDate) > 5)
+                                                           x.RegistrationDate >= startDate) >= 5)
                 {
                     ModelState.AddModelError(string.Empty, "You cannot register another account using this device.");
                     return Page();
