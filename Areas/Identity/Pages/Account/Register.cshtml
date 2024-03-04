@@ -68,17 +68,18 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-        // Initialize the agent on page load.
-        const fpPromise = import('https://fpjscdn.net/v3/K39Wlv4VumahUkoVDhMK')
-            .then(FingerprintJS => FingerprintJS.load())
-
-        // Get the visitorId when you need it.
-        fpPromise
-            .then(fp => fp.get())
-            .then(result => {
-                document.querySelector("#visitorId").value = result.visitorId;
-                document.querySelector("#requestId").value = result.requestId;
-                document.querySelector("#registerSubmit").disabled = false;
-            })
+      // Initialize the agent on page load.
+      const fpPromise = import('https://fpjscdn.net/v3/XXXXXXXXXXXXXXXXXXXX')
+        .then(FingerprintJS => FingerprintJS.load())
+    
+      // Get the visitorId when you need it.
+      fpPromise
+        .then(fp => fp.get())
+        .then(result => {
+          document.querySelector("#visitorId").value = result.visitorId;
+          document.querySelector("#requestId").value = result.requestId;
+          document.querySelector("#registerSubmit").disabled = false;
+        })
+    
     </script>
 }

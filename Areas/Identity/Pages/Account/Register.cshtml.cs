@@ -19,7 +19,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Utilities.Date;
 
 namespace FingerprintAspNetCore.Areas.Identity.Pages.Account
 {
@@ -157,9 +159,11 @@ namespace FingerprintAspNetCore.Areas.Identity.Pages.Account
                 }
                 
                 // Make sure the visitor ID does not already exist
-                if (_applicationDbContext.Users.Any(x => x.Fingerprint == Input.VisitorId))
+                var startDate = DateTime.UtcNow.AddDays(-7);
+                if (_applicationDbContext.Users.Count(x => x.Fingerprint == Input.VisitorId &&
+                                                           x.RegistrationDate >= startDate) > 5)
                 {
-                    ModelState.AddModelError(string.Empty, "You already have an account registered for this device.");
+                    ModelState.AddModelError(string.Empty, "You cannot register another account using this device.");
                     return Page();
                 }
 
@@ -168,6 +172,8 @@ namespace FingerprintAspNetCore.Areas.Identity.Pages.Account
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 user.Fingerprint = Input.VisitorId;
+                user.RegistrationDate = DateTime.UtcNow;
+                
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)

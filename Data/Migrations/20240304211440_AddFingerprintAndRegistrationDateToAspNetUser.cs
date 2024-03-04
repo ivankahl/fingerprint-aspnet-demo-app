@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace FingerprintAspNetCore.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class ChangeIdentityUserToApplicationUser : Migration
+    public partial class AddFingerprintAndRegistrationDateToAspNetUser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,6 +17,13 @@ namespace FingerprintAspNetCore.Data.Migrations
                 type: "TEXT",
                 nullable: false,
                 defaultValue: "");
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "RegistrationDate",
+                table: "AspNetUsers",
+                type: "TEXT",
+                nullable: false,
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
         }
 
         /// <inheritdoc />
@@ -23,6 +31,10 @@ namespace FingerprintAspNetCore.Data.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "Fingerprint",
+                table: "AspNetUsers");
+
+            migrationBuilder.DropColumn(
+                name: "RegistrationDate",
                 table: "AspNetUsers");
         }
     }
