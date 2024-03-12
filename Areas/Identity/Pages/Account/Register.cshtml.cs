@@ -163,7 +163,7 @@ namespace FingerprintAspNetCore.Areas.Identity.Pages.Account
                 if (_applicationDbContext.Users.Count(x => x.Fingerprint == Input.VisitorId &&
                                                            x.RegistrationDate >= startDate) >= 5)
                 {
-                    ModelState.AddModelError(string.Empty, "You cannot register another account using this device.");
+                    ModelState.AddModelError(string.Empty, "You cannot register another account using this browser.");
                     return Page();
                 }
 
