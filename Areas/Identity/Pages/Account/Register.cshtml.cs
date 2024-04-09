@@ -132,17 +132,20 @@ namespace FingerprintAspNetCore.Areas.Identity.Pages.Account
                 /*
                  * Fingerprint validation
                  */
-                // Make sure the visitor ID is correct using the SDK
                 var fingerprintEvent = await _fingerprintApi.GetEventAsync(Input.RequestId);
                 var identification = fingerprintEvent.Products.Identification.Data;
                 var confidence = identification.Confidence.Score;
 
+                // Check that the Visitor ID submitted in the form matches the Visitor ID returned by
+                // Fingerprint for the RequestId. This prevents users from forging the Visitor ID.
                 if (identification.VisitorId != Input.VisitorId)
                 {
                     ModelState.AddModelError(string.Empty, "Forged Visitor ID.");
                     return Page();
                 }
 
+                // Make sure that the Request ID is not older than two minutes. This prevents malicious
+                // users from reusing an old Visitor and Request ID to make a request.
                 var identifiedAt = DateTimeOffset.FromUnixTimeMilliseconds(identification.Timestamp ??
                                                                            throw new FormatException(
                                                                                "Missing identification timestamp"));
@@ -152,13 +155,17 @@ namespace FingerprintAspNetCore.Areas.Identity.Pages.Account
                     return Page();
                 }
 
+                // Fingerprint returns a confidence value that represents how accurately the visitor was
+                // identified. If the identification confidence is less than 90%, then reject the registration
+                // request.
                 if (confidence < 0.9f)
                 {
                     ModelState.AddModelError(string.Empty, "Low confidence identification score.");
                     return Page();
                 }
                 
-                // Make sure the visitor ID does not exist more than 5 times in the last week
+                // Query the database and block the registration request if five or more accounts have
+                // been registered with the same Visitor ID in the last seven days (week).
                 var startDate = DateTime.UtcNow.AddDays(-7);
                 if (_applicationDbContext.Users.Count(x => x.Fingerprint == Input.VisitorId &&
                                                            x.RegistrationDate >= startDate) >= 5)
